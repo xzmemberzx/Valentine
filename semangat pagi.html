@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Valentine ❤️</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#ff9a9e,#fad0c4);
+  text-align:center;
+  color:white;
+  overflow-x:hidden;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,80px);
+  gap:10px;
+  justify-content:center;
+  margin-top:20px;
+}
+
+.card{
+  width:80px;
+  height:80px;
+  background:white;
+  color:black;
+  font-size:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  border-radius:10px;
+}
+
+#gift{
+  font-size:80px;
+  margin-top:40px;
+  display:none;
+  cursor:pointer;
+  animation:float 2s infinite;
+}
+
+@keyframes float{
+  0%{transform:translateY(0);}
+  50%{transform:translateY(-20px);}
+  100%{transform:translateY(0);}
+}
+
+#loveScreen{
+  display:none;
+  margin-top:40px;
+  cursor:pointer;
+  position:relative;
+  height:250px;
+}
+
+#love{
+  font-size:150px;
+  color:red;
+  animation:beat 1s infinite;
+  position:relative;
+  z-index:1;
+  margin-top:40px;
+}
+
+#loveText{
+  font-size:80px;
+  color:white;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  text-shadow:2px 2px 5px black;
+  z-index:2;
+}
+
+@keyframes beat{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.2);}
+  100%{transform:scale(1);}
+}
+
+#messageBox{
+  display:none;
+  margin-top:30px;
+  font-size:24px;
+  cursor:pointer;
+  min-height:60px;
+}
+
+#videoSection{
+  display:none;
+  margin-top:40px;
+}
+
+iframe{
+  width:90%;
+  max-width:400px;
+  height:230px;
+  border:none;
+  border-radius:15px;
+}
+</style>
+</head>
+<body>
+
+<h1>Happy Valentine ❤️</h1>
+
+<!-- MUSIC -->
+<audio id="music" loop>
+  <source src="https://www.dropbox.com/scl/fi/yj4tr9oywoxlb7xwr4oua/virgoun-surat-cinta-untuk-starla-a-love-letter-to-starla-official-lyric-video_AqlXa4z3.mp3?rlkey=imcklsphmd288ft2dkobo8lvm&raw=1" type="audio/mp3">
+</audio>
+
+<!-- GAME -->
+<div id="game">
+<h2>Cari pasangan yang sama 💕</h2>
+<div class="grid" id="grid"></div>
+</div>
+
+<!-- GIFT -->
+<div id="gift">🎁</div>
+
+<!-- LOVE -->
+<div id="loveScreen">
+  <div id="love">❤️</div>
+  <div id="loveText">I LOVE YOU</div>
+</div>
+
+<!-- MESSAGE -->
+<div id="messageBox"></div>
+
+<!-- VIDEO -->
+<div id="videoSection">
+<h2>Kenangan Manis ❤️</h2>
+<iframe id="ytvideo" 
+  src="https://www.youtube.com/embed/Vndc9lC_Pvo?autoplay=1&mute=1&controls=1&rel=0"
+  allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen>
+</iframe>
+</div>
+
+<script>
+let musicStarted=false;
+let music=document.getElementById("music");
+
+/* GAME */
+const emojis=["❤️","🌹","💖","💕","❤️","🌹","💖","💕"];
+let shuffled=emojis.sort(()=>0.5-Math.random());
+let grid=document.getElementById("grid");
+let first=null, second=null, lock=false, match=0;
+
+shuffled.forEach(e=>{
+  let card=document.createElement("div");
+  card.className="card";
+  card.innerHTML="?";
+  card.onclick=()=>{
+    // mulai musik saat klik pertama kali
+    if(!musicStarted){
+      music.play().catch(e=>{
+        console.log("Autoplay diblokir, klik halaman untuk memulai musik");
+      });
+      musicStarted=true;
+    }
+
+    if(lock || card.innerHTML!="?") return;
+    card.innerHTML=e;
+    if(!first){
+      first=card;
+    }else{
+      second=card;
+      lock=true;
+      if(first.innerHTML==second.innerHTML){
+        match++;
+        reset();
+        if(match==4){
+          setTimeout(()=>{
+            document.getElementById("game").style.display="none";
+            document.getElementById("gift").style.display="block";
+          },500);
+        }
+      }else{
+        setTimeout(()=>{
+          first.innerHTML="?";
+          second.innerHTML="?";
+          reset();
+        },800);
+      }
+    }
+  };
+  grid.appendChild(card);
+});
+
+function reset(){
+  first=null;
+  second=null;
+  lock=false;
+}
+
+/* GIFT */
+document.getElementById("gift").onclick=()=>{
+  document.getElementById("gift").style.display="none";
+  document.getElementById("loveScreen").style.display="block";
+};
+
+/* MESSAGE */
+let messages=[
+  "Aku sayang banget sama kamu ❤️",
+  "Kamu itu hadiah terindah dalam hidupku 🎁",
+  "Aku selalu bahagia setiap ingat kamu 😊",
+  "Aku harap kita selalu bersama selamanya 💕"
+];
+let msgIndex=0;
+
+function typeText(text,element,callback){
+  element.innerHTML="";
+  let i=0;
+  let interval=setInterval(()=>{
+    element.innerHTML+=text.charAt(i);
+    i++;
+    if(i>=text.length){
+      clearInterval(interval);
+      if(callback) callback();
+    }
+  },50);
+}
+
+document.getElementById("loveScreen").onclick=nextMessage;
+
+function nextMessage(){
+  document.getElementById("loveScreen").style.display="none";
+  let box=document.getElementById("messageBox");
+  box.style.display="block";
+
+  if(msgIndex<messages.length){
+    typeText(messages[msgIndex],box,()=>{
+      msgIndex++;
+      box.onclick=nextMessage;
+    });
+  }else{
+    box.style.display="none";
+    document.getElementById("videoSection").style.display="block";
+    // musik tetap berjalan dari klik pertama
+  }
+}
+</script>
+
+</body>
+</html>
